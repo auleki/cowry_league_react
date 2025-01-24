@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id           Int      @id @default(autoincrement())
+  firstname    String
+  lastname     String
+  email        String?  @unique
+  dateJoined   DateTime
+  password     String
+  pot          Pot[]    @relation("PotPlayers")
+  currentPot   Json? // Use Json type for objects
+  nairaBalance Float    @default(0) // Use Float for numbers with decimal points
+  cowryBalance Float    @default(0) // Use Float for numbers with decimal points
+}
+
+model Pot {
+  id       Int      @id @default(autoincrement())
+  player   Player[] @relation("PotPlayers")
+  isOpen   Boolean? @default(false)
+  potFee   Float // Use Float for numeric values
+  potOpen  DateTime // Required field for when the pot opens
+  potClose DateTime // Required field for when the pot closes
+  potPrice Int      @default(0)
+}

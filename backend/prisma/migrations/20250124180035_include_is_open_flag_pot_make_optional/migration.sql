@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Pot" ALTER COLUMN "isOpen" DROP NOT NULL;
