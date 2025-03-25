@@ -14,10 +14,10 @@ const playerService = new PlayerService()
 /**
  * Fetches all players and their stats
  */
-playerRouter.get('/', async (req, res) => {
+playerRouter.get('/all', async (req, res) => {
     try {
         const _allPlayers = await playerService.getAllPlayerStats()
-        res.json({ data: 'Hi', _allPlayers })
+        res.json({ data: _allPlayers })
     } catch (error) {
         res.json({ error })
     }
@@ -31,7 +31,7 @@ playerRouter.get('/:id', async (req: Request, res: Response) => {
         const playerId = req.params.id ?? null
         if (!playerId) res.status(401).json({ message: 'No ID attached' })
         const _player = await playerService.getSinglePlayerStats(Number(playerId)) // playerID used to find player\
-        res.json({ data: _player })
+        res.json({ player: _player })
     } catch (error) {
         res.json({ error })
     }
@@ -46,7 +46,7 @@ playerRouter.post("/new", async (req: Request, res: Response) => {
     try {
         // take player data and send to player creation service
         const newPlayer = await playerService.createPlayer(req.body) // can include a datacheck to ensure form data has all needed fields
-        res.status(201).json({ data: newPlayer, message: PlayerNotif.PlayerCreated })
+        res.status(201).json({ newPlayer, message: PlayerNotif.PlayerCreated })
     } catch (error) {
         console.error(error)
         res.status(401).json(error)
@@ -63,7 +63,7 @@ playerRouter.patch("/:id/deposit-fiat", async (req: Request<DepositParams>, res:
         const { amount, type } = req.body as DepositParams
         const updatedPlayer = await playerService.depositLocalFiat(Number(playerId), amount, type)
         console.log({ updatedPlayer });
-        res.status(201).json({ data: updatedPlayer, message: PlayerNotif.UpdateCowryBalance })
+        res.status(201).json({ updatedPlayer, message: PlayerNotif.UpdatedFiatBalance })
     } catch (error) {
         next(error)
     }
@@ -79,7 +79,7 @@ playerRouter.patch('/:id/withdraw-fiat', async (req: Request<WithdrawParams>, re
         const { amount, type } = req.body as WithdrawParams
         const updatedPlayer = await playerService.withdrawFiatToBankAccount(Number(playerId), amount)
         console.log({ errorFrom: updatedPlayer });
-        res.status(200).json({ data: updatedPlayer, message: PlayerNotif.AmountWithdrawn })
+        res.status(200).json({ updatedPlayer, message: PlayerNotif.AmountWithdrawn })
     } catch (error: any) {
         console.error('server::', typeof Object.keys(error))
         next(error)
@@ -95,7 +95,7 @@ playerRouter.patch('/:id/deposit-cowry', async (req: Request<DepositCowryParams>
         const { amount } = req.body as DepositCowryParams
         const updatedBalance = await playerService.topupCowryBalance(+playerId, +amount)
         console.log({ updatedBalance });
-        res.status(200).json({ data: updatedBalance })
+        res.status(200).json({ updatedBalance, message: PlayerNotif.DepoitSuccessful })
     } catch (error) {
         next(error)
     }
@@ -110,7 +110,7 @@ playerRouter.patch('/:id/withdraw-cowry', async (req: Request<DepositCowryParams
         const { amount } = req.body as DepositCowryParams
         const updatedBalance = await playerService.deductCowryBalance(+playerId, +amount)
         console.log({ updatedBalance });
-        res.status(200).json({ data: updatedBalance })
+        res.status(200).json({ updatedBalance, message: PlayerNotif.WithdrawnCowries })
     } catch (error) {
         next(error)
     }

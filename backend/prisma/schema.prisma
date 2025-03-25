@@ -14,24 +14,55 @@ datasource db {
 }
 
 model Player {
-  id           Int      @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   firstname    String
   lastname     String
-  email        String?  @unique
+  email        String?           @unique
   dateJoined   DateTime
   password     String
-  pot          Pot[]    @relation("PotPlayers")
-  currentPot   Json? // Use Json type for objects
-  nairaBalance Float    @default(0) // Use Float for numbers with decimal points
-  cowryBalance Float    @default(0) // Use Float for numbers with decimal points
+  // pot          Pot[]    @relation("PotPlayers")
+  games        Game[]            @relation("PlayersInGame")
+  playerStats  PlayerGameStats[]
+  nairaBalance Float             @default(0) // Use Float for numbers with decimal points
+  cowryBalance Float             @default(0) // Use Float for numbers with decimal points
 }
 
 model Pot {
-  id       Int      @id @default(autoincrement())
-  player   Player[] @relation("PotPlayers")
-  isOpen   Boolean? @default(false)
-  potFee   Float // Use Float for numeric values
-  potOpen  DateTime // Required field for when the pot opens
-  potClose DateTime // Required field for when the pot closes
-  potPrice Int      @default(0)
+  id                 Int      @id @default(autoincrement())
+  // player             Player[] @relation("PotPlayers")
+  potFee             Float // Use Float for numeric values
+  potOpen            DateTime // Required field for when the pot opens
+  potClose           DateTime // Required field for when the pot closes
+  potPrice           Float    @default(0)
+  initialCowryReward Float    @default(100)
+  highestCowryReward Float    @default(1000) // reward per balloon click can change based on a number of conditions
+  game               Game[]   @relation("CurrentPot")
+}
+
+model Game {
+  id            Int               @id @default(autoincrement())
+  potId         Int
+  pot           Pot               @relation("CurrentPot", fields: [potId], references: [id], onDelete: Cascade)
+  players       Player[]          @relation("PlayersInGame")
+  playerStats   PlayerGameStats[]
+  gameover      Boolean           @default(false)
+  startDate     DateTime
+  endDate       DateTime
+  totalWin      Float             @default(0)
+  minimalReward Float             @default(100)
+  maxReward     Float             @default(1000)
+}
+
+model PlayerGameStats {
+  id                  Int       @id @default(autoincrement())
+  game                Game      @relation(fields: [gameId], references: [id])
+  gameId              Int
+  player              Player    @relation(fields: [playerId], references: [id])
+  playerId            Int
+  cowriesEarned       Float     @default(0)
+  livesLeft           Int       @default(3)
+  maxLives            Int       @default(3)
+  lastCooldownStartAt DateTime?
+
+  @@unique([gameId, playerId])
 }
