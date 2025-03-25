@@ -38,7 +38,7 @@ potRouter.post('/new', async (req: Request, res: Response) => {
         const { potClose, potOpen, potFee } = req.body as NewPotParams
 
         // check if admin is the one creating a POT
-        
+
         const newPot = await potService.createPot({
             potClose: new Date((potClose as any) * 1000), // make this air-tight
             potOpen: new Date((potOpen as any) * 1000),
@@ -61,7 +61,7 @@ potRouter.get('/all', async (req, res) => {
         if (!_allPots.length) {
             res.status(200).json(PotRouterMessages.EmptyPotList)
         } else {
-            res.json({ data: _allPots, message: PotRouterMessages.GetAllPots })
+            res.json({ pots: _allPots, message: PotRouterMessages.GetAllPots })
         }
     } catch (error) {
         res.json({ error })
@@ -75,10 +75,12 @@ potRouter.get('/all', async (req, res) => {
 potRouter.get('/:id', async (req: Request<PotParams>, res) => {
     try {
         const id = req.params?.id ?? null
+        console.log({id })
         if (!id && isNaN(Number(id))) res.status(401).json({ message: 'No ID attached' })
         const _singlePot = await potService.getSinglePot(Number(id))
-        res.json({ data: _singlePot, message: PotRouterMessages.GetSinglePot })
+        res.json({ pot: _singlePot, message: PotRouterMessages.GetSinglePot })
     } catch (error) {
+        console.log({error})
         res.json({ error })
     }
 })
@@ -91,8 +93,8 @@ potRouter.patch('/:id/close', async (req: Request, res: Response) => {
     try {
         const potId = extractParamsField(req, "id")
         const closedPot = await potService.togglePotStatus(Number(potId), false)
-        console.log({closedPot});
-        res.status(200).json({data: closedPot})
+        console.log({ closedPot });
+        res.status(200).json({ closedPot })
     } catch (error) {
         res.status(401).json(error)
     }
@@ -106,7 +108,7 @@ potRouter.patch('/:id/open', async (req: Request, res: Response) => {
     try {
         const potId = extractParamsField(req, "id")
         const openedPot = await potService.togglePotStatus(Number(potId), true)
-        res.status(200).json({data: openedPot})
+        res.status(200).json({ openedPot })
     } catch (error) {
         res.status(401).json(error)
     }
@@ -119,9 +121,10 @@ potRouter.patch('/:id/join', async (req: Request<PotParams>, res: Response, next
     try {
         const potId = Number(extractParamsField(req, "id"))
         const playerId = Number(extractQueryField(req, "player"))
-        const _data = await potService.addPlayerToPot(potId, playerId)
+        const { gameId } = req.body // include this within query params
+        const _data = await potService.addPlayerToPot(potId, playerId, gameId)
         console.log({ _data })
-        res.status(200).json({ data: _data })
+        res.status(200).json({ pot: _data })
     } catch (error) {
         next(error)
     }
@@ -135,7 +138,7 @@ potRouter.patch('/:id/remove', async (req: Request<PotParams>, res: Response) =>
         const potId = Number(extractParamsField(req, "id"))
         const playerId = Number(extractQueryField(req, "player"))
         // remove player from POT
-        res.status(200).json({ data: {potId, playerId} })
+        res.status(200).json({ data: { potId, playerId } })
     } catch (error) {
         res.status(401).json({ error })
     }
@@ -164,13 +167,15 @@ potRouter.get('/:id/players', async (req: Request<PotParams>, res: Response) => 
 /**
  * Fetches single Pot
  */
-potRouter.delete('/', async (req: Request<PotParams>, res) => {
+potRouter.delete('/:id', async (req: Request<PotParams>, res) => {
     try {
         const id = req.params?.id ?? null
+        console.log({id: Number(id)})
         if (!id && isNaN(Number(id))) res.status(401).json({ message: 'No Pot attached' })
         const deletedPot = await potService.deletePot(Number(id))
-        res.json({ data: deletedPot, message: PotRouterMessages.DeletePot })
+        res.status(200).json({ data: deletedPot, message: PotRouterMessages.DeletePot })
     } catch (error) {
+        // console.error(error)
         res.json({ error })
     }
 })

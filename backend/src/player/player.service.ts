@@ -107,7 +107,8 @@ export default class PlayerService {
         console.log({ id })
         try {
             return await prisma.player.findFirstOrThrow({
-                where: { id }
+                where: { id },
+                include: { games: true }
             })
         } catch (error: any) {
             throw Error(error)
@@ -124,7 +125,6 @@ export default class PlayerService {
             throw Error(error)
         }
     }
-
 
     /**
      * Increasees the local balance, by taking in the amount being added,but ensuring the money actually went through before approving
@@ -177,21 +177,17 @@ export default class PlayerService {
 
             const currentFiatBalance = player.nairaBalance
 
-            console.log({ currentFiatBalance });
-
             if ((currentFiatBalance - withdrawalAmount) < 0) throw new Error(TransferNotif.InsufficientFunds)
 
             const updatedPlayer = await prisma.player.update({
                 where: { id: playerId },
                 data: { nairaBalance: currentFiatBalance - withdrawalAmount }
             })
+            console.log({ currentFiatBalance, withdrawalAmount, updatedPlayer });
             return updatedPlayer;
         } catch (error: any) {
             console.log({ error });
             throw new Error(error)
         }
     }
-
-
-
 }
