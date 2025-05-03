@@ -1,3 +1,5 @@
+import {TRANSACTION_TYPE} from "../../utils/enum";
+
 export interface IPlayer {
     firstname: string,
     lastname: string,
@@ -16,7 +18,11 @@ export interface IBankAccountDetails {
 
 export type DepositParams = {
     amount: number;
-    type: 'transfer' | 'ussd'
+    type: TRANSACTION_TYPE
+}
+
+export type VerifyDepositParams = {
+    transactionReference: string | number
 }
 
 export type WithdrawParams = {

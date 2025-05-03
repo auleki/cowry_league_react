@@ -41,6 +41,7 @@ export type GameStatProps = {
 gameStatRouter.post('/new', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { gameId, playerId } = await req.body as GameStatProps
+        console.log({playerId})
         const newGameStat = await gameStatsService.createGameStat(gameId, playerId)
         res.status(201).json({ data: newGameStat })
     } catch (error: any) {

@@ -14,17 +14,24 @@ datasource db {
 }
 
 model Player {
-  id           Int               @id @default(autoincrement())
-  firstname    String
-  lastname     String
-  email        String?           @unique
-  dateJoined   DateTime
-  password     String
+  id                          Int                     @id @default(autoincrement())
+  firstname                   String
+  lastname                    String
+  email                       String?                 @unique
+  dateJoined                  DateTime
+  emailVerified               Boolean                 @default(false)
+  emailVerifiedToken          String?
+  emailVerifiedTokenExpiresAt DateTime?
+  password                    String
   // pot          Pot[]    @relation("PotPlayers")
-  games        Game[]            @relation("PlayersInGame")
-  playerStats  PlayerGameStats[]
-  nairaBalance Float             @default(0) // Use Float for numbers with decimal points
-  cowryBalance Float             @default(0) // Use Float for numbers with decimal points
+  games                       Game[]                  @relation("PlayersInGame")
+  playerStats                 PlayerGameStats[]
+  nairaBalance                Float                   @default(0) // Use Float for numbers with decimal points
+  cowryBalance                Float                   @default(0) // Use Float for numbers with decimal points
+  CowryTransactions           CowryTransactions[]
+  NairaFiatTransactions       NairaFiatTransactions[]
+  createdAt                   DateTime                @default(now())
+  updatedAt                   DateTime                @updatedAt @default(now())
 }
 
 model Pot {
@@ -37,6 +44,8 @@ model Pot {
   initialCowryReward Float    @default(100)
   highestCowryReward Float    @default(1000) // reward per balloon click can change based on a number of conditions
   game               Game[]   @relation("CurrentPot")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt @default(now())
 }
 
 model Game {
@@ -51,6 +60,8 @@ model Game {
   totalWin      Float             @default(0)
   minimalReward Float             @default(100)
   maxReward     Float             @default(1000)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt @default(now())
 }
 
 model PlayerGameStats {
@@ -59,10 +70,52 @@ model PlayerGameStats {
   gameId              Int
   player              Player    @relation(fields: [playerId], references: [id])
   playerId            Int
-  cowriesEarned       Float     @default(0)
+  popsEarned       Float     @default(0)
   livesLeft           Int       @default(3)
   maxLives            Int       @default(3)
   lastCooldownStartAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt @default(now())
 
   @@unique([gameId, playerId])
+}
+
+model Cowry {
+  id             Int                 @id @default(autoincrement())
+  name           String              @default("Cowry")
+  totalSupply    Int                 @default(0)
+  transactions   CowryTransactions[]
+  withdrawalRate Float               @default(0.88)
+  rateToNaira    Float               @default(10)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt @default(now())
+  @@map("cowry")
+}
+
+model CowryTransactions {
+  id              Int      @id @default(autoincrement())
+  player          Player   @relation(fields: [playerId], references: [id])
+  playerId        Int
+  amount          Float
+  transactionType String // 'deposit', 'win', 'spend' 'cashout'
+  referenceId     String
+  cowry           Cowry    @relation(fields: [cowryId], references: [id])
+  cowryId         Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  @@map("cowry_transactions")
+}
+
+model NairaFiatTransactions {
+  id               Int      @id @default(autoincrement())
+  playerId         Int
+  player           Player   @relation(fields: [playerId], references: [id])
+  amount           Float
+  reference        String
+  accessCode       String
+  authorizationUrl String
+  transactionType  String // 'deposit', 'win', 'spend' 'cashout'
+  status           String // "pending" | "successful" | "failed" 
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
 }

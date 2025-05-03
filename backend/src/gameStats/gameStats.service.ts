@@ -88,7 +88,7 @@ export default class GameStatsService {
             doesResourceExist(_gameStat, GameRouterMessages.GameNotFound)
             const hasCooldownElapsed = true;
             isGameOnCooldown(_gameStat?.lastCooldownStartAt)
-            console.log({ _gameStat });
+            //console.log({ _gameStat });
             // return
             if (!hasCooldownElapsed) throw Error(GameStatRouterMessages.CooldownNotElapsed)
 
@@ -157,6 +157,12 @@ export default class GameStatsService {
              * N.B. Pots can only be used once a day
              */
             (function checkGameCreationStatus() {
+                // console.log({_allGameStats})
+                if (_allGameStats.length === 0 ) {
+                    userCanStartGame = true
+                    return
+                }
+                
                 const _stats = _allGameStats.filter(gameStat => {
                     if (gameStat.gameId === gameId && playerId === gameStat.playerId) {
                         userCanStartGame = false
@@ -187,6 +193,7 @@ export default class GameStatsService {
             console.log({ _newGameStat })
             return _newGameStat;
         } catch (error: any) {
+            console.log({error})
             throw Error(error)
         }
     }
@@ -213,7 +220,7 @@ export default class GameStatsService {
                 {
                     where: { id: gameStatId },
                     data: {
-                        cowriesEarned: { [action]: COWRY_REWARD_PER_BALLOON }
+                        popsEarned: { [action]: COWRY_REWARD_PER_BALLOON }
                     }
                 }
             )
@@ -273,7 +280,7 @@ export default class GameStatsService {
             const updatedCowries = await prisma.playerGameStats.update({
                 where: { id: gameStatId },
                 data: {
-                    cowriesEarned: { increment: cowryReward }
+                    popsEarned: { increment: cowryReward }
                 }
             })
             // increase totalCowries earned || or use computation to calculate totalEarned based on cowries earned within participated games

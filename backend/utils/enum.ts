@@ -12,3 +12,21 @@ export enum POT_CHANGE_TYPE {
     "POT_CLOSE" = "pot-close",
     "POT_OPEN" = "pot-open",
 }
+
+export enum TRANSACTION_TYPE {
+    "DEPOSIT" = "deposit",
+    "WIN" = "win",
+    "SPEND" = "spend",
+    "CASHOUT" = "cashout",
+}
+
+export enum TRANSACTION_STATUS {
+    "PENDING" = "pending",
+    "SUCCESSFUL" = "successful",
+    "FAILED" = "failed"
+}
+
+export enum PAYMENT_VERIFICATION_STATUS {
+    "ABANDONED" ="abandoned",
+    "SUCCESS" = "success"
+}

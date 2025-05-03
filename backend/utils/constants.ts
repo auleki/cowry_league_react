@@ -4,3 +4,5 @@ export const CHANGE_NUM = {
     "COWRY_EARN": "cowry-earn",
     "COWRY_LOSS": "cowry-loss"
 }
+
+export const SALT_ROUNDS = 15;

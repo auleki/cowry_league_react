@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Game" ADD COLUMN     "totalWin" DOUBLE PRECISION NOT NULL DEFAULT 0;

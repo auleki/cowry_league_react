@@ -19,7 +19,7 @@ export default class GameService {
     }
 
     /**
-     * Fetches singlr Game  within db
+     * Fetches single Game  within db
      */
     async getSingleGame(playerId: number) {
         try {
@@ -30,7 +30,7 @@ export default class GameService {
                 gameover: _game.gameover,
                 startDate: _game.startDate,
                 endDate: _game.endDate,
-                isOpen: _game.isOpen,
+                // isOpen: _game.isOpen,
                 totalWin: _game.totalWin,
                 players: _game.players,
                 potFee: _game.pot.potFee
@@ -101,9 +101,8 @@ export default class GameService {
             throw Error(error)
         }
     }
-
-  
-
+    
+    
     /**
      * Player can join a game and participate
      */
@@ -129,9 +128,9 @@ export default class GameService {
             })
             if (!_pot) throw Error(PotRouterMessages.PotNotFound)  // Check if pot exists and respond with appropriate error message
 
-            if (_pot.potFee > _player.nairaBalance) throw Error(TransferNotif.InsufficientFunds)
+            if (_pot.potFee > _player.cowryBalance) throw Error(TransferNotif.InsufficientFunds)
 
-            const newBalance = await playerService.withdrawFiatToBankAccount(playerId, _pot.potFee)
+            const newBalance = await playerService.deductCowryBalance(playerId, _pot.potFee)
 
             // include other checkers
 

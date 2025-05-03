@@ -19,6 +19,8 @@ export const GameNotif = {
 
 export const PlayerNotif = {
     NotFound: "Sorry, we know no such player!",
+    DepositInitiated: "Deposit initiated!",
+    TransactionNotVerified: "Transaction not verified, please complete your payment",
     UpdateCowryBalance: "Cowries done land!",
     WithdrawnCowries: "Cowries have been withdrawn!",
     UpdatedFiatBalance: "Your deposit has arrived!",

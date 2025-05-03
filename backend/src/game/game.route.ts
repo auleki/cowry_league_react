@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response, Router } from "express";
 import GameService from "./game.service";
 import { extractParamsField } from "../../utils/util";
+import GameStatsService from "../gameStats/gameStats.service";
 
 const gameRouter = Router()
 const gameService = new GameService()
-
+const gameStatsService = new GameStatsService()
 
 /**
  * Fetch all Games using the GameService
@@ -30,6 +31,7 @@ gameRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) =
         next(error)
     }
 })
+
 /**
  * Create a new Game using service
  */
@@ -55,7 +57,7 @@ export type JoinGameProps = {
 gameRouter.patch('/join/:gameId', async (req: Request<JoinGameProps>, res: Response, next: NextFunction) => {
     try {
         const {playerId} = req.body as JoinGameProps
-        const {gameId} = req.params as JoinGameProps;
+        const {gameId} = req.params;
         console.log({gameId, playerId});
         const _updatedGame = await gameService.playerJoinPotGame(Number(playerId), Number(gameId))
         res.status(201).json({ data: _updatedGame })
@@ -75,7 +77,7 @@ gameRouter.patch('/lose-life', async (req: Request<LoseLifeProps>, res: Response
     try {
         // remove life from player 
         const {gameStatId, playerId} = req.body as LoseLifeProps
-        const _statId = await gameService.playerLoseLife(gameStatId, playerId)
+        const _statId = await gameStatsService.playerLoseLife(gameStatId, playerId)
         res.status(200).json({data: _statId, message: "Life lost"})
     } catch (error) {
         next(error)
@@ -100,16 +102,14 @@ gameRouter.get('/created-by/:playerId', async (req: Request<CreatedByProps>, res
 /**
  * Puts the game on hold, not allowing new players to join or ending game
  */
-gameRouter.patch('/hold-game', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        // pause game, preventing new players from joining
-        // or players continuing the game
-    } catch (error) {
-        // handle error 
-    }
-})
-
-
+// gameRouter.patch('/hold-game', async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         // pause game, preventing new players from joining
+//         // or players continuing the game
+//     } catch (error) {
+//         // handle error 
+//     }
+// })
 
 /**
  * Suspend Game, meaning players can't join, leave or continue their game sessions
